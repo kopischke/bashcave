@@ -38,13 +38,16 @@ function match {
 }
 
 function ltrim {
-	echo "$(match '[^[:space:]].*' "$1")"
+	local to_trim="${2:-[:space:]}"
+	match "[^$to_trim].*$" "$1"
 }
 
 function rtrim {
-	echo "$(match '[^[:space:]].*$' "$1")"
+	local to_trim="${2:-[:space:]}"
+	match "^.*[^$to_trim]" "$1"
 }
 
 function trim {
-	echo "$(match '[^[:space:]](.*[^[:space:]])?' "$1")"
+	local to_trim="${2:-[:space:]}"
+	match "[^$to_trim](.*[^$to_trim])?" "$1"
 }
