@@ -9,7 +9,7 @@ function is_7bit {
 }
 
 function is_blank {
-	is_in_class '[:blank:]' "$1"
+	[[ -z "$1" ]] || is_in_class '[:blank:]' "$1"
 }
 
 function is_upper {
@@ -21,7 +21,7 @@ function is_lower {
 }
 
 function is_mixed {
-	! is_upper "$1" && ! is_lower "$1"
+	(( ${#1} > 1 )) && ! is_upper "$1" && ! is_lower "$1"
 }
 
 function is_title {
