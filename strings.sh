@@ -1,6 +1,41 @@
 function is_in_class {
+	local casematch=$(shopt -p nocasematch)
+	case "$1" in
+	  --case)
+		shopt -u nocasematch
+		shift ;;
+	  --no-case)
+		shopt -s nocasematch
+		shift ;;
+	  *)
+	  	casematch='' ;;
+	esac
+	
 	local regex="[^$1]"
-	[[ $2 =~ $regex ]] && return 1 || return 0
+	local retval=0
+	[[ -z "$2" || $2 =~ $regex ]] && retval=1
+	[[ -n "$casematch" ]] && $casematch
+	return $retval
+}
+
+function match {
+	local casematch=$(shopt -p nocasematch)
+	case "$1" in
+	  --case)
+		shopt -u nocasematch
+		shift ;;
+	  --no-case)
+		shopt -s nocasematch
+		shift ;;
+	  *)
+	  	casematch='' ;;
+	esac
+	
+	local regex="$1"
+	local retval=0
+	[[ $2 =~ $regex ]] && echo "${BASH_REMATCH[0]}" || retval=$?
+	[[ -n "$casematch" ]] && $casematch
+	return $retval
 }
 
 function is_7bit {
@@ -13,11 +48,11 @@ function is_blank {
 }
 
 function is_upper {
-	is_in_class '[:upper:]' "$1"
+	is_in_class --case '[:upper:]' "$1"
 }
 
 function is_lower {
-	is_in_class '[:lower:]' "$1"
+	is_in_class --case '[:lower:]' "$1"
 }
 
 function is_mixed {
@@ -30,11 +65,6 @@ function is_title {
 
 function utf8_normalize {
 	echo "$1" | iconv -s -f UTF-8-Mac -t UTF-8
-}
-
-function match {
-	local regex="$1"
-	[[ $2 =~ $regex ]] && echo "${BASH_REMATCH[0]}"
 }
 
 function ltrim {
