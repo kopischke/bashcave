@@ -1,23 +1,3 @@
-function is_in_class {
-	local casematch=$(shopt -p nocasematch)
-	case "$1" in
-	  --case)
-		shopt -u nocasematch
-		shift ;;
-	  --no-case)
-		shopt -s nocasematch
-		shift ;;
-	  *)
-	  	casematch='' ;;
-	esac
-	
-	local regex="[^$1]"
-	local retval=0
-	[[ -z "$2" || $2 =~ $regex ]] && retval=1
-	[[ -n "$casematch" ]] && $casematch
-	return $retval
-}
-
 function match {
 	local casematch=$(shopt -p nocasematch)
 	case "$1" in
@@ -36,6 +16,14 @@ function match {
 	[[ $2 =~ $regex ]] && echo "${BASH_REMATCH[0]}" || retval=$?
 	[[ -n "$casematch" ]] && $casematch
 	return $retval
+}
+
+function is_in_class {
+	local flags=()
+	local flag_regex='^--[^-]+'
+	while [[ $1 =~ $flag_regex ]]; do flags+=("$1"); shift; done
+	[[ -z "$2" ]] || match "${flags[@]}" "[^$1]" "$2" && return 1
+	true
 }
 
 function is_7bit {
