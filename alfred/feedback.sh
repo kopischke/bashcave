@@ -1,18 +1,12 @@
-# First, call:
-#
-#     feedback --start [encoding]
-#
-# then, for every item repeat:
-#
-#     feedback title [--subtitle=subtitle] [--uid=uid]
-#					 [--action=action] [--valid] [--file]
-#					 [--completion=completion]
-#					 [--icon=icon] [--fileicon|--filetype]
-#
-# finally, call:
-#
-#     feedback --end
-#
+# ALFRED XML FEEDBACK LIBRARY: CDATA FTW
+# Usage: feedback --start [encoding]
+#        feedback TITLE [--subtitle subtitle] [--uid uid]
+#                       [--action action] [--valid] [--file]
+#                       [--completion completion]
+#                       [--icon icon] [--fileicon|--filetype]
+#        feedback --end
+# All arguments but TITLE are optional for feedback items; if none are passed,
+# a non-valid, iconless, non-actionable item with a default UID is created.
 function feedback {
 	case "$1" in
 	  --start) # start of XML output
