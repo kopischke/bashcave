@@ -1,7 +1,7 @@
 # A REQUIRE SYSTEM FOR BASH FUNCTION LIBRARIES
 # very loosely based on Ruby’s require command
 
-# Set a path passed when sourcing as $BASHCAVE_DIR
+# Set a path passed when sourced as $BASHCAVE_DIR
 [[ -n "$1" ]] && export BASHCAVE_DIR="$1"
 
 # Sources a bashcave library
@@ -9,7 +9,7 @@
 #        require --from LIBRARY function [function ... function]
 # The first form sources LIBRARY if found in the bashcave.
 # The second form sources LIBRARY (if found) only if at least one function is not defined.
-# Returns 1 if sourcing fails or if the requested functions do not exist after sourcing, 0 else.
+# Returns 1 if sourcing fails or if the requested functions do not exist after sourcing, else 0.
 #
 # * bashcave will look for LIBRARY in $BASHCAVE_DIR, if defined, or in  its default directories
 #   as well as in the directories listed in $BASHCAVE_PATH (if any) if not.
@@ -33,6 +33,7 @@ function require {
 		if (( ${#funcs[@]} > 0 )); then
 			for func in "${funcs[@]}"; do
 				[[ $(type -t "$func") == 'function' ]] || must_source=true
+				$must_source && break
 			done
 		fi
 		$must_source || return 0
@@ -43,9 +44,15 @@ function require {
 		return 1
 	fi
 
+	# sanitize library name (prevent directory traversal attacks)
+	lib="${lib#~}";   lib="${lib#/}"                # strip absolute path elements
+	lib="${lib#../}"; lib="${lib#./}"               # strip leading relative path elements
+	lib="${lib//\/..\//\/}"; lib="${lib//\/.\//\/}" # strip inline relative path elements
+	lib="${lib%/..}"; lib="${lib%/.}"               # strip trailing relative path elements
+	
 	# normalize library name
-	[[ ${lib///} == "$lib" ]] && lib="core/$lib" # no module = core
-	lib="${lib%.sh}.sh"                          # ensure .sh extension
+	[[ ${lib///} == "$lib" ]] && lib="core/$lib"    # assume core if module is missing
+	lib="${lib%.sh}.sh"                             # ensure .sh extension
 	
 	# locate library path
 	if [[ -d "$BASHCAVE_DIR" && -x "$BASHCAVE_DIR" ]]; then
