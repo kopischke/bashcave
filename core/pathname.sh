@@ -124,3 +124,12 @@ function path_name {
 
 # Alias for pathname --real
 function real_path { path_name --real "$1" ; }; export -f real_path
+
+# Echoes the current volume device name, or that for file if given, to stdout.
+# Usage: vol_name [file]
+function vol_name {
+	[[ -z "$1" || -e "$1" ]] || return 1
+	local target="${1:-$PWD}"
+	local disk_re='/dev/[^ ]+'
+	[[ $(df "$target") =~ $disk_re ]] && echo "${BASH_REMATCH[0]}"
+}; export -f vol_name
